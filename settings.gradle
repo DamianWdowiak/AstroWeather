@@ -1,0 +1,4 @@
+include ':astrocalculator'
+include ':astrocalculator'
+include ':app'
+rootProject.name = "AstroWeather"
