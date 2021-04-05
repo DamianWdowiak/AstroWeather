@@ -1,0 +1,35 @@
+package com.example.astroweather;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+
+public class SharedViewModel extends ViewModel {
+    private final MutableLiveData<Double> longitude = new MutableLiveData<>();
+    private final MutableLiveData<Double> latitude = new MutableLiveData<>();
+    private final MutableLiveData<Long> refreshRate = new MutableLiveData<>();
+
+    public LiveData<Double> getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double value) {
+        longitude.setValue(value);
+    }
+
+    public LiveData<Double> getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double value) {
+        latitude.setValue(value);
+    }
+
+    public LiveData<Long> getRefreshRate() {
+        return refreshRate;
+    }
+
+    public void setRefreshRate(long value) {
+        refreshRate.setValue(value);
+    }
+}
