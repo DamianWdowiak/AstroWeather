@@ -60,7 +60,7 @@ public class MoonFragment extends Fragment {
                     astroCalculator.getMoonInfo().getNextFullMoon().getMonth(),
                     astroCalculator.getMoonInfo().getNextFullMoon().getYear()));
             illumination.setText(String.format("%.02f%%", astroCalculator.getMoonInfo().getIllumination()));
-            lunarDay.setText(String.format("%f", astroCalculator.getMoonInfo().getAge()));
+            lunarDay.setText(String.format("%d", (int) astroCalculator.getMoonInfo().getAge()));
             handler.postDelayed(this, refreshRate);
         }
     };
