@@ -88,9 +88,11 @@ public class MainActivity extends FragmentActivity {
         longitude.setText(String.format("%.5f", viewModel.getLongitude().getValue()));
 
         viewPager = findViewById(R.id.view_pager);
-        pagerAdapter = new ScreenSlidePagerAdapter(this);
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setPageTransformer(new ZoomOutPageTransformer());
+        if (viewPager != null) {
+            pagerAdapter = new ScreenSlidePagerAdapter(this);
+            viewPager.setAdapter(pagerAdapter);
+            viewPager.setPageTransformer(new ZoomOutPageTransformer());
+        }
 
         handler.post(blink);
     }

@@ -7,77 +7,71 @@
     tools:context=".SettingsActivity">
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="128dp"
-        android:text="latitude"
-        android:textSize="@dimen/font_size_fragments_default"
-        app:layout_constraintStart_toStartOf="@+id/textView6"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="84dp"
         android:text="longitude"
-        android:textSize="@dimen/font_size_fragments_default"
-        app:layout_constraintStart_toStartOf="@+id/textView10"
+        android:textSize="@dimen/font_size_fragments_tablet"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-    <EditText
-        android:id="@+id/editLatitude"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="116dp"
-        android:ems="10"
-        android:inputType="numberDecimal"
-        app:layout_constraintEnd_toEndOf="@+id/editLongitude"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/editLongitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginTop="68dp"
         android:ems="10"
         android:inputType="numberDecimal"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="@dimen/font_size_fragments_tablet"
+        app:layout_constraintStart_toStartOf="@+id/editLatitude"
         app:layout_constraintTop_toBottomOf="@+id/editLatitude" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="124dp"
+        android:text="latitude"
+        android:textSize="@dimen/font_size_fragments_tablet"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editLatitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="192dp"
+        android:layout_marginTop="124dp"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        android:textSize="@dimen/font_size_fragments_tablet"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
+        android:layout_marginTop="208dp"
         android:text="Save"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="@dimen/font_size_fragments_tablet"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
     <TextView
         android:id="@+id/textView10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="72dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="92dp"
         android:text="Refresh rate"
-        android:textSize="@dimen/font_size_fragments_default"
-        app:layout_constraintEnd_toStartOf="@+id/refreshRate"
-        app:layout_constraintHorizontal_bias="0.508"
+        android:textSize="@dimen/font_size_fragments_tablet"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView6" />
-
-    <Spinner
-        android:id="@+id/refreshRate"
-        android:layout_width="0dp"
-        android:layout_height="28dp"
-        android:layout_marginTop="64dp"
-        app:layout_constraintStart_toEndOf="@+id/textView10"
-        app:layout_constraintStart_toStartOf="@+id/editLongitude"
-        app:layout_constraintTop_toBottomOf="@+id/editLongitude" />
 
     <TextView
         android:id="@+id/textView13"
@@ -86,8 +80,16 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="64dp"
         android:text="minutes"
-        android:textSize="@dimen/font_size_fragments_default"
+        android:textSize="@dimen/font_size_fragments_tablet"
         app:layout_constraintStart_toEndOf="@+id/refreshRate"
+        app:layout_constraintTop_toBottomOf="@+id/editLongitude" />
+
+    <Spinner
+        android:id="@+id/refreshRate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        app:layout_constraintStart_toStartOf="@+id/editLongitude"
         app:layout_constraintTop_toBottomOf="@+id/editLongitude" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

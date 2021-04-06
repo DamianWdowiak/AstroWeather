@@ -19,10 +19,10 @@ public class SettingsActivity extends AppCompatActivity {
     private Spinner refreshRate;
 
     private void bindViews() {
-        editLatitude = (EditText) findViewById(R.id.editLatitude);
-        editLongitude = (EditText) findViewById(R.id.editLongitude);
-        save = (Button) findViewById(R.id.save);
-        refreshRate = (Spinner) findViewById(R.id.refreshRate);
+        editLatitude = findViewById(R.id.editLatitude);
+        editLongitude = findViewById(R.id.editLongitude);
+        save = findViewById(R.id.save);
+        refreshRate = findViewById(R.id.refreshRate);
     }
 
     @SuppressLint("SetTextI18n")
@@ -33,8 +33,8 @@ public class SettingsActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         bindViews();
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.refreshRate, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.array.refreshRate, R.layout.spinner_item);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_layout);
         refreshRate.setAdapter(adapter);
 
         Intent lastIntent = getIntent();
@@ -75,7 +75,7 @@ public class SettingsActivity extends AppCompatActivity {
         return !(latitude < -90) && !(latitude > 90) && !(longitude < -180) && !(longitude > 180);
     }
 
-    private CharSequence millisToMinutes(String millis){
+    private CharSequence millisToMinutes(String millis) {
         long millisLong = Long.parseLong(millis);
         return String.valueOf(millisLong / 60 / 1000);
     }
