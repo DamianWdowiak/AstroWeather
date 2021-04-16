@@ -44,7 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (latitudeIntent != null) {
             editLatitude.setText(latitudeIntent);
             editLongitude.setText(longitudeIntent);
-            int spinnerPosition = adapter.getPosition(millisToMinutes(spinnerIntent));
+            int spinnerPosition = adapter.getPosition(millisToSeconds(spinnerIntent));
             refreshRate.setSelection(spinnerPosition);
         }
 
@@ -78,5 +78,10 @@ public class SettingsActivity extends AppCompatActivity {
     private CharSequence millisToMinutes(String millis) {
         long millisLong = Long.parseLong(millis);
         return String.valueOf(millisLong / 60 / 1000);
+    }
+
+    private CharSequence millisToSeconds(String millis) {
+        long millisLong = Long.parseLong(millis);
+        return String.valueOf(millisLong / 1000);
     }
 }

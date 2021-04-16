@@ -48,11 +48,11 @@ public class SunFragment extends Fragment {
             sunrise.setText(String.format("%d:%02d",
                     astroCalculator.getSunInfo().getSunrise().getHour(),
                     astroCalculator.getSunInfo().getSunrise().getMinute()));
-            sunriseAzimuth.setText(String.format("%.02f", astroCalculator.getSunInfo().getAzimuthRise()));
+            sunriseAzimuth.setText(String.format("%.04f", astroCalculator.getSunInfo().getAzimuthRise()));
             sunset.setText(String.format("%d:%02d",
                     astroCalculator.getSunInfo().getSunset().getHour(),
                     astroCalculator.getSunInfo().getSunset().getMinute()));
-            sunsetAzimuth.setText(String.format("%.02f", astroCalculator.getSunInfo().getAzimuthSet()));
+            sunsetAzimuth.setText(String.format("%.04f", astroCalculator.getSunInfo().getAzimuthSet()));
             dawn.setText(String.format("%d:%02d",
                     astroCalculator.getSunInfo().getTwilightMorning().getHour(),
                     astroCalculator.getSunInfo().getTwilightMorning().getMinute()));

@@ -27,6 +27,7 @@ public class MainActivity extends FragmentActivity {
     private static final int NO_DATA_FROM_INTENT = -200;
     private static final long DELAY_1_SECOND = 1000;
     private static final long DELAY_15_MINUTES = 1000 * 60 * 15;
+    private static final long DELAY_15_SECONDS = 1000 * 15;
     private static final double DEFAULT_LATITUDE = 51.7833;
     private static final double DEFAULT_LONGITUDE = 19.4667;
 
@@ -66,7 +67,7 @@ public class MainActivity extends FragmentActivity {
         viewModel = new ViewModelProvider(this, sharedViewModelFactory).get(SharedViewModel.class);
 
         if (viewModel.getRefreshRate().getValue() == null) {
-            viewModel.setRefreshRate(DELAY_15_MINUTES);
+            viewModel.setRefreshRate(DELAY_15_SECONDS);
             viewModel.setLatitude(DEFAULT_LATITUDE);
             viewModel.setLongitude(DEFAULT_LONGITUDE);
         }
@@ -78,7 +79,7 @@ public class MainActivity extends FragmentActivity {
         if (latitudeIntent != NO_DATA_FROM_INTENT) {
             viewModel.setLatitude(latitudeIntent);
             viewModel.setLongitude(longitudeIntent);
-            viewModel.setRefreshRate(minutesToMillis(spinnerIntent));
+            viewModel.setRefreshRate(secondsToMillis(spinnerIntent));
         }
 
         Date date = Calendar.getInstance().getTime();
@@ -99,6 +100,10 @@ public class MainActivity extends FragmentActivity {
 
     private long minutesToMillis(int minutes) {
         return minutes * 1000L * 60L;
+    }
+
+    private long secondsToMillis(int seconds) {
+        return seconds * 1000L;
     }
 
     @Override
