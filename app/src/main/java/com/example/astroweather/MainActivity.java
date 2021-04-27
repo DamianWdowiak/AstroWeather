@@ -3,9 +3,7 @@ package com.example.astroweather;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.icu.util.Calendar;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -18,33 +16,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 
 public class MainActivity extends FragmentActivity {
     private static final int NUM_PAGES = 2;
     private static final int NO_DATA_FROM_INTENT = -200;
-    private static final long DELAY_1_SECOND = 1000;
-    private static final long DELAY_15_MINUTES = 1000 * 60 * 15;
     private static final long DELAY_15_SECONDS = 1000 * 15;
     private static final double DEFAULT_LATITUDE = 51.7833;
     private static final double DEFAULT_LONGITUDE = 19.4667;
 
     @SuppressLint("SimpleDateFormat")
-    private final SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-    private final Handler handler = new Handler();
     private ViewPager2 viewPager;
     private FragmentStateAdapter pagerAdapter;
-    private TextView clock;
-    private final Runnable blink = new Runnable() {
-        @Override
-        public void run() {
-            Date date = Calendar.getInstance().getTime();
-            clock.setText(df.format(date.getTime()));
-            handler.postDelayed(this, DELAY_1_SECOND);
-        }
-    };
     private TextView latitude;
     private TextView longitude;
     private SharedViewModel viewModel;
@@ -61,7 +43,6 @@ public class MainActivity extends FragmentActivity {
 
         latitude = findViewById(R.id.latitude);
         longitude = findViewById(R.id.longitude);
-        clock = findViewById(R.id.clock);
 
         SharedViewModelFactory sharedViewModelFactory = new SharedViewModelFactory();
         viewModel = new ViewModelProvider(this, sharedViewModelFactory).get(SharedViewModel.class);
@@ -82,9 +63,6 @@ public class MainActivity extends FragmentActivity {
             viewModel.setRefreshRate(secondsToMillis(spinnerIntent));
         }
 
-        Date date = Calendar.getInstance().getTime();
-        clock.setText(df.format(date.getTime()));
-
         latitude.setText(String.format("%.5f", viewModel.getLatitude().getValue()));
         longitude.setText(String.format("%.5f", viewModel.getLongitude().getValue()));
 
@@ -94,8 +72,6 @@ public class MainActivity extends FragmentActivity {
             viewPager.setAdapter(pagerAdapter);
             viewPager.setPageTransformer(new ZoomOutPageTransformer());
         }
-
-        handler.post(blink);
     }
 
     private long minutesToMillis(int minutes) {
@@ -104,12 +80,6 @@ public class MainActivity extends FragmentActivity {
 
     private long secondsToMillis(int seconds) {
         return seconds * 1000L;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        handler.removeCallbacks(blink);
     }
 
     @Override
