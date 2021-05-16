@@ -18,7 +18,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 
 public class MainActivity extends FragmentActivity {
-    private static final int NUM_PAGES = 2;
+    private static final int NUM_PAGES = 4;
     private static final int NO_DATA_FROM_INTENT = -200;
     private static final long DELAY_15_SECONDS = 1000 * 15;
     private static final double DEFAULT_LATITUDE = 51.7833;
@@ -120,10 +120,15 @@ public class MainActivity extends FragmentActivity {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            if (position == 0) {
-                return new SunFragment();
-            } else {
-                return new MoonFragment();
+            switch (position) {
+                case 0:
+                    return new CurrWeatherFragment();
+                case 1:
+                    return new LongTermForecastFragment();
+                case 2:
+                    return new SunFragment();
+                default:
+                    return new MoonFragment();
             }
         }
 

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorPrimaryVariant"
+    tools:context=".LongTermForecastFragment">
+
+
+    <ImageView
+        android:id="@+id/icon2"
+        android:layout_width="32sp"
+        android:layout_height="32sp"
+        android:src="?attr/colorPrimaryVariant"
+        app:layout_constraintBottom_toTopOf="@+id/icon3"
+        app:layout_constraintEnd_toEndOf="@+id/icon3"
+        app:layout_constraintTop_toBottomOf="@+id/icon1" />
+
+    <ImageView
+        android:id="@+id/icon3"
+        android:layout_width="32sp"
+        android:layout_height="32sp"
+        android:src="?attr/colorPrimaryVariant"
+        app:layout_constraintBottom_toTopOf="@+id/icon4"
+        app:layout_constraintEnd_toEndOf="@+id/icon4"
+        app:layout_constraintTop_toBottomOf="@+id/icon2" />
+
+    <ImageView
+        android:id="@+id/icon4"
+        android:layout_width="32sp"
+        android:layout_height="32sp"
+        android:src="?attr/colorPrimaryVariant"
+        app:layout_constraintBottom_toTopOf="@+id/icon5"
+        app:layout_constraintEnd_toEndOf="@+id/icon5"
+        app:layout_constraintTop_toBottomOf="@+id/icon3" />
+
+    <ImageView
+        android:id="@+id/icon5"
+        android:layout_width="32sp"
+        android:layout_height="32sp"
+        android:src="?attr/colorPrimaryVariant"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/temperature5"
+        app:layout_constraintTop_toBottomOf="@+id/icon4" />
+
+    <TextView
+        android:id="@+id/locationName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="TextView"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/date1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toTopOf="@+id/date2"
+        app:layout_constraintStart_toStartOf="@+id/date2"
+        app:layout_constraintTop_toBottomOf="@+id/locationName" />
+
+    <ImageView
+        android:id="@+id/icon1"
+        android:layout_width="32sp"
+        android:layout_height="32sp"
+        android:src="?attr/colorPrimaryVariant"
+        app:layout_constraintBottom_toTopOf="@+id/icon2"
+        app:layout_constraintEnd_toEndOf="@+id/icon2"
+        app:layout_constraintTop_toBottomOf="@+id/locationName" />
+
+    <TextView
+        android:id="@+id/temperature1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toTopOf="@+id/temperature2"
+        app:layout_constraintEnd_toStartOf="@+id/icon1"
+        app:layout_constraintStart_toEndOf="@+id/date1"
+        app:layout_constraintTop_toBottomOf="@+id/locationName" />
+
+    <TextView
+        android:id="@+id/date2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toTopOf="@+id/date3"
+        app:layout_constraintStart_toStartOf="@+id/date3"
+        app:layout_constraintTop_toBottomOf="@+id/date1" />
+
+    <TextView
+        android:id="@+id/temperature2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toTopOf="@+id/temperature3"
+        app:layout_constraintEnd_toStartOf="@+id/icon2"
+        app:layout_constraintStart_toEndOf="@+id/date2"
+        app:layout_constraintTop_toBottomOf="@+id/temperature1" />
+
+    <TextView
+        android:id="@+id/date3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toTopOf="@+id/date4"
+        app:layout_constraintStart_toStartOf="@+id/date4"
+        app:layout_constraintTop_toBottomOf="@+id/date2" />
+
+    <TextView
+        android:id="@+id/temperature3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toTopOf="@+id/temperature4"
+        app:layout_constraintEnd_toStartOf="@+id/icon3"
+        app:layout_constraintStart_toEndOf="@+id/date3"
+        app:layout_constraintTop_toBottomOf="@+id/temperature2" />
+
+    <TextView
+        android:id="@+id/date4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toTopOf="@+id/date5"
+        app:layout_constraintStart_toStartOf="@+id/date5"
+        app:layout_constraintTop_toBottomOf="@+id/date3" />
+
+    <TextView
+        android:id="@+id/temperature4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toTopOf="@+id/temperature5"
+        app:layout_constraintEnd_toStartOf="@+id/icon4"
+        app:layout_constraintStart_toEndOf="@+id/date4"
+        app:layout_constraintTop_toBottomOf="@+id/temperature3" />
+
+    <TextView
+        android:id="@+id/date5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/temperature5"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date4" />
+
+    <TextView
+        android:id="@+id/temperature5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/icon5"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/date5"
+        app:layout_constraintTop_toBottomOf="@+id/temperature4" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
