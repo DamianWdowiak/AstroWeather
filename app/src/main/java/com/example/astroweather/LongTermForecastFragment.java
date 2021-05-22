@@ -1,6 +1,9 @@
 package com.example.astroweather;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -23,11 +26,21 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 
 public class LongTermForecastFragment extends Fragment {
+    private static final String SAVED_JSON_FILENAME = "forecast_weather_info.json";
+    private static final String WEATHER_TIMESTAMP_FILENAME = "forecast_weather_timestamp";
     private static final long ONE_HOUR = 1_000 * 60 * 60;
+    private static final long ONE_MINUTE = 1_000 * 60;
     private static final long REFRESH_RATE = ONE_HOUR;
     private static final Handler handler = new Handler();
     @SuppressLint("SimpleDateFormat")
@@ -55,19 +68,82 @@ public class LongTermForecastFragment extends Fragment {
         @SuppressLint("DefaultLocale")
         @Override
         public void run() {
-            requestForecastData("lodz", "metric");
+            String unit = "metric".equals("metric") ? " \u2103" : " \u2109";
+            if (isInternetAvailable()) {
+                if (isDataUpdated()) {
+                    try {
+                        JSONObject savedData = loadJSONFromStorage();
+                        updateFragmentFields(savedData, unit);
+                    } catch (JSONException | IOException | ParseException e) {
+                        requestForecastData("lodz", "metric");
+                    }
+                } else {
+                    requestForecastData("lodz", "metric");
+                }
+            } else {
+                Toast.makeText(getActivity(), "Data may be outdated to refresh information connect to the Internet", Toast.LENGTH_LONG).show();
+
+                try {
+                    JSONObject savedData = loadJSONFromStorage();
+                    updateFragmentFields(savedData, unit);
+                } catch (JSONException | IOException | ParseException e) {
+                    Toast.makeText(getActivity(), "App needs internet connection", Toast.LENGTH_SHORT).show();
+                    handler.postDelayed(this, ONE_MINUTE);
+                }
+            }
 
             handler.postDelayed(this, REFRESH_RATE);
         }
     };
 
+    private boolean isDataUpdated() {
+        try {
+            LocalDateTime timestamp = loadTimestamp();
+            if (LocalDateTime.now().isBefore(timestamp.plusHours(1))) {
+                return true;
+            }
+        } catch (IOException ignored) {
+        }
+        return false;
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
     public LongTermForecastFragment() {
         // Required empty public constructor
     }
 
+    private void saveTimestamp() {
+        try (FileOutputStream outputStream = getContext().openFileOutput(WEATHER_TIMESTAMP_FILENAME, Context.MODE_PRIVATE)) {
+            outputStream.write(LocalDateTime.now().toString().getBytes());
+        } catch (Exception ignored) {
+        }
+    }
+
+    private LocalDateTime loadTimestamp() throws IOException {
+        FileInputStream fis = getContext().openFileInput(WEATHER_TIMESTAMP_FILENAME);
+        InputStreamReader inputStreamReader =
+                new InputStreamReader(fis, StandardCharsets.UTF_8);
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        String line = reader.readLine();
+        while (line != null) {
+            stringBuilder.append(line);
+            line = reader.readLine();
+        }
+
+        return LocalDateTime.parse(stringBuilder.toString());
+    }
+
     private void requestForecastData(String location, String units) {
         String baseURL = "https://api.openweathermap.org/data/2.5/forecast?";
-        String apiKey = "";
+        String apiKey = BuildConfig.OPEN_WEATHER_MAP_KEY;
         String url = baseURL + "q=" + location + "&units=" + units + "&appid=" + apiKey;
         String unit = units.equals("metric") ? " \u2103" : " \u2109";
 
@@ -75,6 +151,8 @@ public class LongTermForecastFragment extends Fragment {
                 response -> {
                     try {
                         updateFragmentFields(response, unit);
+                        saveJSONToStorage(response);
+                        saveTimestamp();
                     } catch (JSONException | ParseException e) {
                         Toast.makeText(getActivity(), "Response Error!", Toast.LENGTH_SHORT).show();
                     }
@@ -84,18 +162,35 @@ public class LongTermForecastFragment extends Fragment {
         queue.add(jsonObjectRequest);
     }
 
+    private JSONObject loadJSONFromStorage() throws IOException, JSONException {
+        FileInputStream fis = getContext().openFileInput(SAVED_JSON_FILENAME);
+        InputStreamReader inputStreamReader =
+                new InputStreamReader(fis, StandardCharsets.UTF_8);
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        String line = reader.readLine();
+        while (line != null) {
+            stringBuilder.append(line).append('\n');
+            line = reader.readLine();
+        }
+
+        return new JSONObject(stringBuilder.toString());
+    }
+
+    private void saveJSONToStorage(JSONObject object) {
+        try (FileOutputStream outputStream = getContext().openFileOutput(SAVED_JSON_FILENAME, Context.MODE_PRIVATE)) {
+            outputStream.write(object.toString().getBytes());
+        } catch (Exception ignored) {
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     private void updateFragmentFields(JSONObject response, String unit) throws JSONException, ParseException {
-        temperature1.setText(getTemperature(response, 0, "temp_min") +
-                "/" + getTemperature(response, 0, "temp_max") + unit);
-        temperature2.setText(getTemperature(response, 8, "temp_min") +
-                "/" + getTemperature(response, 8, "temp_max") + unit);
-        temperature3.setText(getTemperature(response, 16, "temp_min") +
-                "/" + getTemperature(response, 16, "temp_max") + unit);
-        temperature4.setText(getTemperature(response, 24, "temp_min") +
-                "/" + getTemperature(response, 24, "temp_max") + unit);
-        temperature5.setText(getTemperature(response, 32, "temp_min") +
-                "/" + getTemperature(response, 32, "temp_max") + unit);
+        temperature1.setText(getTemperature(response, 0, "temp") + unit);
+        temperature2.setText(getTemperature(response, 8, "temp") + unit);
+        temperature3.setText(getTemperature(response, 16, "temp") + unit);
+        temperature4.setText(getTemperature(response, 24, "temp") + unit);
+        temperature5.setText(getTemperature(response, 32, "temp")  + unit);
 
         date1.setText(dayOfTheWeekFormatter.format(textToDateFormatter.parse(getStringDate(response, 0))));
         date2.setText(dayOfTheWeekFormatter.format(textToDateFormatter.parse(getStringDate(response, 8))));
@@ -106,6 +201,10 @@ public class LongTermForecastFragment extends Fragment {
         locationName.setText(response.getJSONObject("city").getString("country") +
                 ", " + response.getJSONObject("city").getString("name"));
 
+        setWeatherIcons(response);
+    }
+
+    private void setWeatherIcons(JSONObject response) throws JSONException {
         String iconCode1 = getIconCode(response, 0);
         String iconCode2 = getIconCode(response, 8);
         String iconCode3 = getIconCode(response, 16);
@@ -152,8 +251,8 @@ public class LongTermForecastFragment extends Fragment {
         return response.getJSONArray("list").getJSONObject(i).getJSONArray("weather").getJSONObject(0).getString("icon");
     }
 
-    private double getTemperature(JSONObject response, int i, String temp_min) throws JSONException {
-        return response.getJSONArray("list").getJSONObject(i).getJSONObject("main").getDouble(temp_min);
+    private double getTemperature(JSONObject response, int i, String mode) throws JSONException {
+        return response.getJSONArray("list").getJSONObject(i).getJSONObject("main").getDouble(mode);
     }
 
     private void bindViews(View rootView) {
