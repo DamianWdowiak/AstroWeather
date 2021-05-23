@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".SettingsActivity">
 
+    <Spinner
+        android:id="@+id/favourites"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintStart_toStartOf="@+id/units"
+        app:layout_constraintTop_toBottomOf="@+id/units" />
+
     <TextView
         android:id="@+id/textView20"
         android:layout_width="wrap_content"
@@ -61,7 +69,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="4dp"
         android:ems="10"
         android:inputType="numberDecimal|numberSigned"
         app:layout_constraintEnd_toEndOf="@+id/editLongitude"
@@ -82,12 +89,12 @@
         android:id="@+id/save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
+        android:layout_marginBottom="24dp"
         android:text="Save"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/delete"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/add" />
 
     <TextView
         android:id="@+id/textView10"
@@ -131,5 +138,36 @@
         app:layout_constraintStart_toStartOf="@+id/refreshRate"
         app:layout_constraintTop_toBottomOf="@+id/refreshRate"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="24dp"
+        android:text="Favourites"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView20" />
+
+    <Button
+        android:id="@+id/add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add"
+        app:layout_constraintEnd_toStartOf="@+id/save"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/save" />
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DEL"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/save"
+        app:layout_constraintTop_toTopOf="@+id/save" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,11 +1,14 @@
 package com.example.astroweather;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,24 +25,42 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SettingsActivity extends AppCompatActivity {
+    private static final String FAVOURITES_FILENAME = "favourites_cities";
+    private final AtomicBoolean blocked = new AtomicBoolean(false);
     private EditText editLatitude;
     private EditText editLongitude;
     private Button save;
+    private Button add;
+    private Button delete;
     private Spinner refreshRate;
+    private Spinner favourites;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private Switch units;
     private RequestQueue queue;
     private EditText cityName;
-    private final AtomicBoolean blocked = new AtomicBoolean(false);
+    private List<String> cities;
+    private ArrayAdapter<String> arrayAdapter;
+    private boolean skipFirstAction = true;
 
     private void bindViews() {
         editLatitude = findViewById(R.id.editLatitude);
         editLongitude = findViewById(R.id.editLongitude);
         save = findViewById(R.id.save);
+        add = findViewById(R.id.add);
+        delete = findViewById(R.id.delete);
         refreshRate = findViewById(R.id.refreshRate);
+        favourites = findViewById(R.id.favourites);
         units = findViewById(R.id.units);
         cityName = findViewById(R.id.cityName);
     }
@@ -57,6 +78,16 @@ public class SettingsActivity extends AppCompatActivity {
         refreshRate.setAdapter(adapter);
 
         queue = Volley.newRequestQueue(this);
+
+        try {
+            loadListFromStorage();
+        } catch (Exception e) {
+            cities = new ArrayList<>();
+        }
+
+        arrayAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, cities);
+        arrayAdapter.setDropDownViewResource(R.layout.spinner_dropdown_layout);
+        favourites.setAdapter(arrayAdapter);
 
         Intent lastIntent = getIntent();
         String latitudeIntent = lastIntent.getStringExtra("latitude");
@@ -89,12 +120,45 @@ public class SettingsActivity extends AppCompatActivity {
                     intent.putExtra("cityName", cityNameString);
                     intent.putExtra("spinner", spinnerString);
                     intent.putExtra("units", units.isChecked());
+                    saveListToStorage();
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
                 Toast.makeText(this, "Invalid input", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        favourites.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!skipFirstAction) {
+                    cityName.setText(favourites.getItemAtPosition(position).toString());
+                } else {
+                    skipFirstAction = false;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        add.setOnClickListener(v -> {
+            String city = cityName.getText().toString();
+            if (!city.equals("") && !cities.contains(city)) {
+                cities.add(city);
+                favourites.setAdapter(arrayAdapter);
+                favourites.setSelection(cities.size() - 1);
+            }
+        });
+
+        delete.setOnClickListener(v -> {
+            Object city = favourites.getSelectedItem();
+            if (city != null) {
+                cities.remove(city.toString());
+                favourites.setAdapter(arrayAdapter);
             }
         });
 
@@ -156,6 +220,29 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
+    private void saveListToStorage() {
+        String favouritesString = cities.toString();
+        try (FileOutputStream outputStream = this.openFileOutput(FAVOURITES_FILENAME, Context.MODE_PRIVATE)) {
+            outputStream.write(favouritesString.substring(1, favouritesString.length() - 1).replaceAll(" ", "").getBytes());
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void loadListFromStorage() throws Exception {
+        FileInputStream fis = this.openFileInput(FAVOURITES_FILENAME);
+        InputStreamReader inputStreamReader =
+                new InputStreamReader(fis, StandardCharsets.UTF_8);
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        String line = reader.readLine();
+        while (line != null) {
+            stringBuilder.append(line);
+            line = reader.readLine();
+        }
+
+        cities = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
+    }
+
     private boolean validate(double latitude, double longitude) {
         return !(latitude < -90) && !(latitude > 90) && !(longitude < -180) && !(longitude > 180);
     }
@@ -182,11 +269,17 @@ public class SettingsActivity extends AppCompatActivity {
                         editLatitude.setText(response.getJSONObject("coord").getString("lat"));
                         editLongitude.setText(response.getJSONObject("coord").getString("lon"));
                         save.setEnabled(true);
+                        add.setEnabled(true);
+                        delete.setEnabled(true);
                         blocked.set(false);
                     } catch (JSONException ignored) {
                     }
                 },
-                error -> save.setEnabled(false));
+                error -> {
+                    save.setEnabled(false);
+                    add.setEnabled(false);
+                    delete.setEnabled(false);
+                });
 
         queue.add(jsonObjectRequest);
     }
@@ -202,11 +295,18 @@ public class SettingsActivity extends AppCompatActivity {
                         blocked.set(true);
                         cityName.setText(response.getString("name"));
                         blocked.set(false);
+                        save.setEnabled(true);
+                        add.setEnabled(true);
+                        delete.setEnabled(true);
+                        blocked.set(false);
                     } catch (JSONException ignored) {
                     }
-                    save.setEnabled(true);
                 },
-                error -> save.setEnabled(false));
+                error -> {
+                    save.setEnabled(false);
+                    add.setEnabled(false);
+                    delete.setEnabled(false);
+                });
 
         queue.add(jsonObjectRequest);
     }
