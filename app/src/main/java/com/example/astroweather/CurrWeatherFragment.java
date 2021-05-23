@@ -30,17 +30,18 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 public class CurrWeatherFragment extends Fragment {
+    public static final String DEFAULT_CITY_NAME = "lodz";
+    public static final String METRIC = "metric";
+    public static final String IMPERIAL = "imperial";
     private static final String SAVED_JSON_FILENAME = "curr_weather_info.json";
-    private static final String WEATHER_TIMESTAMP_FILENAME = "curr_weather_timestamp";
     private static final long ONE_HOUR = 1_000 * 60 * 60;
     private static final long ONE_MINUTE = 1_000 * 60;
-    private static final long REFRESH_RATE = ONE_HOUR;
+    private static final long REFRESH_RATE = ONE_HOUR + ONE_MINUTE;
     private static final Handler handler = new Handler();
     private RequestQueue queue;
     private TextView visibility;
@@ -51,29 +52,37 @@ public class CurrWeatherFragment extends Fragment {
     private TextView description;
     private TextView locationName;
     private ImageView icon;
+    private SharedViewModel viewModel;
     public final Runnable updateData = new Runnable() {
         @SuppressLint("DefaultLocale")
         @Override
         public void run() {
-            String unit = "metric".equals("metric") ? " \u2103" : " \u2109";
+            String units;
+            String cityName;
+            if (viewModel.getIsImperial().getValue() == null) {
+                units = METRIC;
+            } else {
+                units = viewModel.getIsImperial().getValue() ? IMPERIAL : METRIC;
+            }
+            if (viewModel.getCityName().getValue() == null) {
+                cityName = DEFAULT_CITY_NAME;
+            } else {
+                cityName = viewModel.getCityName().getValue();
+            }
+
+
             if (isInternetAvailable()) {
-                if (isDataUpdated()) {
-                    try {
-                        JSONObject savedData = loadJSONFromStorage();
-                        updateFragmentFields(savedData, unit);
-                    } catch (JSONException | IOException e) {
-                        requestCurrWeatherData("lodz", "metric");
-                    }
-                } else {
-                    requestCurrWeatherData("lodz", "metric");
+                try {
+                    fillViewWithSavedData();
+                } catch (Exception e) {
+                    requestCurrWeatherData(cityName, units);
                 }
             } else {
                 Toast.makeText(getActivity(), "Data may be outdated to refresh information connect to the Internet", Toast.LENGTH_LONG).show();
 
                 try {
-                    JSONObject savedData = loadJSONFromStorage();
-                    updateFragmentFields(savedData, unit);
-                } catch (JSONException | IOException e) {
+                    fillViewWithSavedData();
+                } catch (Exception e) {
                     Toast.makeText(getActivity(), "App needs internet connection", Toast.LENGTH_SHORT).show();
                     handler.postDelayed(this, ONE_MINUTE);
                 }
@@ -82,46 +91,27 @@ public class CurrWeatherFragment extends Fragment {
             handler.postDelayed(this, REFRESH_RATE);
         }
     };
-    private SharedViewModel viewModel;
 
     public CurrWeatherFragment() {
         // Required empty public constructor
     }
 
-    private void saveTimestamp() {
-        try (FileOutputStream outputStream = getContext().openFileOutput(WEATHER_TIMESTAMP_FILENAME, Context.MODE_PRIVATE)) {
-            outputStream.write(LocalDateTime.now().toString().getBytes());
-        } catch (Exception ignored) {
-        }
+    private void fillViewWithSavedData() throws Exception {
+        JSONObject savedData = loadJSONFromStorage();
+        String units = savedData.getBoolean("is_imperial") ? IMPERIAL : METRIC;
+        updateFragmentFields(savedData, units);
+        updateViewModel(savedData);
     }
 
-    private LocalDateTime loadTimestamp() throws IOException {
-        FileInputStream fis = getContext().openFileInput(WEATHER_TIMESTAMP_FILENAME);
-        InputStreamReader inputStreamReader =
-                new InputStreamReader(fis, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader reader = new BufferedReader(inputStreamReader);
-        String line = reader.readLine();
-        while (line != null) {
-            stringBuilder.append(line);
-            line = reader.readLine();
-        }
-
-        return LocalDateTime.parse(stringBuilder.toString());
+    private void updateViewModel(JSONObject savedData) throws JSONException {
+        viewModel.setCityName(savedData.getString("name"));
+        viewModel.setLatitude(savedData.getJSONObject("coord").getDouble("lat"));
+        viewModel.setLongitude(savedData.getJSONObject("coord").getDouble("lon"));
+        viewModel.setIsImperial(savedData.getBoolean("is_imperial"));
+        viewModel.setRefreshRate(savedData.getLong("refresh_rate"));
     }
 
-    private boolean isDataUpdated() {
-        try {
-            LocalDateTime timestamp = loadTimestamp();
-            if (LocalDateTime.now().isBefore(timestamp.plusHours(1))) {
-                return true;
-            }
-        } catch (IOException ignored) {
-        }
-        return false;
-    }
-
-    private JSONObject loadJSONFromStorage() throws IOException, JSONException {
+    private JSONObject loadJSONFromStorage() throws Exception {
         FileInputStream fis = getContext().openFileInput(SAVED_JSON_FILENAME);
         InputStreamReader inputStreamReader =
                 new InputStreamReader(fis, StandardCharsets.UTF_8);
@@ -133,11 +123,30 @@ public class CurrWeatherFragment extends Fragment {
             line = reader.readLine();
         }
 
-        return new JSONObject(stringBuilder.toString());
+        JSONObject jsonObject = new JSONObject(stringBuilder.toString());
+        isDataUpdated(jsonObject);
+
+        return jsonObject;
+    }
+
+    private void isDataUpdated(JSONObject jsonObject) throws Exception {
+        LocalDateTime timestamp = LocalDateTime.parse(jsonObject.getString("timestamp"));
+        if (timestamp.plusHours(1).isBefore(LocalDateTime.now())) {
+            throw new Exception("Data outdated");
+        }
+
+        if (viewModel.getCityName().getValue() != null &&
+                (!jsonObject.getString("name").equals(viewModel.getCityName().getValue()) ||
+                        jsonObject.getBoolean("is_imperial") != viewModel.getIsImperial().getValue())) {
+            throw new Exception("Data outdated");
+        }
     }
 
     private void saveJSONToStorage(JSONObject object) {
         try (FileOutputStream outputStream = getContext().openFileOutput(SAVED_JSON_FILENAME, Context.MODE_PRIVATE)) {
+            object.put("is_imperial", viewModel.getIsImperial().getValue());
+            object.put("refresh_rate", viewModel.getRefreshRate().getValue());
+            object.put("timestamp", LocalDateTime.now().toString());
             outputStream.write(object.toString().getBytes());
         } catch (Exception ignored) {
         }
@@ -155,25 +164,31 @@ public class CurrWeatherFragment extends Fragment {
         String baseURL = "https://api.openweathermap.org/data/2.5/weather?";
         String apiKey = BuildConfig.OPEN_WEATHER_MAP_KEY;
         String url = baseURL + "q=" + location + "&units=" + units + "&appid=" + apiKey;
-        String unit = units.equals("metric") ? " \u2103" : " \u2109";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
-                        updateFragmentFields(response, unit);
+                        updateFragmentFields(response, units);
                         saveJSONToStorage(response);
-                        saveTimestamp();
                     } catch (JSONException e) {
                         Toast.makeText(getActivity(), "Response Error!", Toast.LENGTH_SHORT).show();
                     }
                 },
-                error -> Toast.makeText(getActivity(), "Couldn't obtain data from server!", Toast.LENGTH_SHORT).show());
+                error -> {
+                    Toast.makeText(getActivity(), "Couldn't obtain data from server!", Toast.LENGTH_SHORT).show();
+                    try {
+                        fillViewWithSavedData();
+                    } catch (Exception ignored) {
+                    }
+                });
 
         queue.add(jsonObjectRequest);
     }
 
     @SuppressLint("SetTextI18n")
-    private void updateFragmentFields(JSONObject response, String unit) throws JSONException {
+    private void updateFragmentFields(JSONObject response, String units) throws JSONException {
+        String unit = units.equals(METRIC) ? " \u2103" : " \u2109";
+
         description.setText(response.getJSONArray("weather").getJSONObject(0).getString("description"));
         temperature.setText(response.getJSONObject("main").getDouble("temp") + unit);
         humidity.setText(response.getJSONObject("main").getInt("humidity") + " %");
@@ -210,6 +225,11 @@ public class CurrWeatherFragment extends Fragment {
         queue = Volley.newRequestQueue(requireActivity());
         SharedViewModelFactory sharedViewModelFactory = new SharedViewModelFactory();
         viewModel = new ViewModelProvider(requireActivity(), sharedViewModelFactory).get(SharedViewModel.class);
+        viewModel.getRefreshNow().observe(this, (value) -> {
+            String units = viewModel.getIsImperial().getValue() ? IMPERIAL : METRIC;
+            String cityName = viewModel.getCityName().getValue();
+            requestCurrWeatherData(cityName, units);
+        });
 
         handler.post(updateData);
     }

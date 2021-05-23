@@ -7,14 +7,44 @@
     tools:context=".SettingsActivity">
 
     <TextView
+        android:id="@+id/textView20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Units"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintEnd_toStartOf="@+id/refreshRate"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/units" />
+
+    <EditText
+        android:id="@+id/cityName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:ems="10"
+        app:layout_constraintEnd_toEndOf="@+id/editLatitude"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/TextView200"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        android:text="city"
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="128dp"
+        android:layout_marginTop="44dp"
         android:text="latitude"
         android:textSize="@dimen/font_size_fragments_default"
         app:layout_constraintStart_toStartOf="@+id/textView6"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/TextView200" />
 
     <TextView
         android:id="@+id/textView6"
@@ -30,11 +60,12 @@
         android:id="@+id/editLatitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="116dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="4dp"
         android:ems="10"
         android:inputType="numberDecimal|numberSigned"
         app:layout_constraintEnd_toEndOf="@+id/editLongitude"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/cityName" />
 
     <EditText
         android:id="@+id/editLongitude"
@@ -89,5 +120,16 @@
         android:textSize="@dimen/font_size_fragments_default"
         app:layout_constraintStart_toEndOf="@+id/refreshRate"
         app:layout_constraintTop_toBottomOf="@+id/editLongitude" />
+
+    <Switch
+        android:id="@+id/units"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="\u2103/\u2109 "
+        android:textSize="@dimen/font_size_fragments_default"
+        app:layout_constraintStart_toStartOf="@+id/refreshRate"
+        app:layout_constraintTop_toBottomOf="@+id/refreshRate"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

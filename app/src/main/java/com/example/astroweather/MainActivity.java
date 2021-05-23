@@ -57,10 +57,14 @@ public class MainActivity extends FragmentActivity {
         double latitudeIntent = intent.getDoubleExtra("latitude", NO_DATA_FROM_INTENT);
         double longitudeIntent = intent.getDoubleExtra("longitude", NO_DATA_FROM_INTENT);
         int spinnerIntent = intent.getIntExtra("spinner", NO_DATA_FROM_INTENT);
+        boolean unitsIntent = intent.getBooleanExtra("units", false);
+        String cityNameIntent = intent.getStringExtra("cityName");
         if (latitudeIntent != NO_DATA_FROM_INTENT) {
             viewModel.setLatitude(latitudeIntent);
             viewModel.setLongitude(longitudeIntent);
             viewModel.setRefreshRate(secondsToMillis(spinnerIntent));
+            viewModel.setIsImperial(unitsIntent);
+            viewModel.setCityName(cityNameIntent);
         }
 
         latitude.setText(String.format("%.5f", viewModel.getLatitude().getValue()));
@@ -105,8 +109,13 @@ public class MainActivity extends FragmentActivity {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             intent.putExtra("latitude", viewModel.getLatitude().getValue().toString());
             intent.putExtra("longitude", viewModel.getLongitude().getValue().toString());
+            intent.putExtra("cityName", viewModel.getCityName().getValue());
             intent.putExtra("spinner", viewModel.getRefreshRate().getValue().toString());
+            intent.putExtra("units", viewModel.getIsImperial().getValue());
             startActivity(intent);
+            return true;
+        } else if (id == R.id.refresh) {
+            viewModel.setRefreshNow(true);
             return true;
         }
         return super.onOptionsItemSelected(item);
