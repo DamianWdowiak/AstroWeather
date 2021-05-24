@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -29,6 +30,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +51,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Switch units;
     private RequestQueue queue;
     private EditText cityName;
-    private List<String> cities;
+    private ArrayList<String> cities;
     private ArrayAdapter<String> arrayAdapter;
     private boolean skipFirstAction = true;
 
@@ -79,10 +81,15 @@ public class SettingsActivity extends AppCompatActivity {
 
         queue = Volley.newRequestQueue(this);
 
-        try {
-            loadListFromStorage();
-        } catch (Exception e) {
-            cities = new ArrayList<>();
+        if(savedInstanceState == null) {
+            try {
+                loadListFromStorage();
+            } catch (Exception e) {
+                cities = new ArrayList<>();
+            }
+        }
+        else {
+            cities = savedInstanceState.getStringArrayList("cities");
         }
 
         arrayAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, cities);
@@ -218,6 +225,12 @@ public class SettingsActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putStringArrayList("cities", cities);
     }
 
     private void saveListToStorage() {

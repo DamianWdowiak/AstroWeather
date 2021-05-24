@@ -3,6 +3,7 @@ package com.example.astroweather;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,11 +19,12 @@ import androidx.viewpager2.widget.ViewPager2;
 
 
 public class MainActivity extends FragmentActivity {
-    private static final int NUM_PAGES = 4;
+    private static final int NUM_PAGES_PORTRAIT = 4;
     private static final int NO_DATA_FROM_INTENT = -200;
     private static final long DELAY_15_SECONDS = 1000 * 15;
     private static final double DEFAULT_LATITUDE = 51.7833;
     private static final double DEFAULT_LONGITUDE = 19.4667;
+    public static final int NUM_PAGES_LANDSCAPE = 2;
 
     @SuppressLint("SimpleDateFormat")
     private ViewPager2 viewPager;
@@ -72,10 +74,35 @@ public class MainActivity extends FragmentActivity {
 
         viewPager = findViewById(R.id.view_pager);
         if (viewPager != null) {
-            pagerAdapter = new ScreenSlidePagerAdapter(this);
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                if(getResources().getBoolean(R.bool.isTablet)){
+                    pagerAdapter = new ScreenSlidePagerAdapterLandscape(this);
+                }else {
+                    pagerAdapter = new ScreenSlidePagerAdapterPortrait(this);
+                }
+            } else {
+                pagerAdapter = new ScreenSlidePagerAdapterLandscape(this);
+            }
             viewPager.setAdapter(pagerAdapter);
             viewPager.setPageTransformer(new ZoomOutPageTransformer());
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if(getResources().getBoolean(R.bool.isTablet)){
+                pagerAdapter = new ScreenSlidePagerAdapterLandscape(this);
+            }else {
+                pagerAdapter = new ScreenSlidePagerAdapterPortrait(this);
+            }
+        } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE){
+            pagerAdapter = new ScreenSlidePagerAdapterLandscape(this);
+        }
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setPageTransformer(new ZoomOutPageTransformer());
     }
 
     private long minutesToMillis(int minutes) {
@@ -121,8 +148,8 @@ public class MainActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private static class ScreenSlidePagerAdapter extends FragmentStateAdapter {
-        public ScreenSlidePagerAdapter(FragmentActivity fa) {
+    private static class ScreenSlidePagerAdapterPortrait extends FragmentStateAdapter {
+        public ScreenSlidePagerAdapterPortrait(FragmentActivity fa) {
             super(fa);
         }
 
@@ -143,7 +170,27 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public int getItemCount() {
-            return NUM_PAGES;
+            return NUM_PAGES_PORTRAIT;
+        }
+    }
+
+    private static class ScreenSlidePagerAdapterLandscape extends FragmentStateAdapter {
+        public ScreenSlidePagerAdapterLandscape(FragmentActivity fa) {
+            super(fa);
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            if (position == 0) {
+                return new WeatherFragmentsWrapper();
+            }
+            return new SunMoonFragmentsWrapper();
+        }
+
+        @Override
+        public int getItemCount() {
+            return NUM_PAGES_LANDSCAPE;
         }
     }
 }

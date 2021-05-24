@@ -89,7 +89,6 @@ public class LongTermForecastFragment extends Fragment {
                 try {
                     fillViewWithSavedData();
                 } catch (Exception e) {
-                    e.printStackTrace();
                     requestForecastData(cityName, units);
                 }
             } else {
@@ -207,8 +206,10 @@ public class LongTermForecastFragment extends Fragment {
         date4.setText(dayOfTheWeekFormatter.format(textToDateFormatter.parse(getStringDate(response, 24))));
         date5.setText(dayOfTheWeekFormatter.format(textToDateFormatter.parse(getStringDate(response, 32))));
 
-        locationName.setText(response.getJSONObject("city").getString("country") +
-                ", " + response.getJSONObject("city").getString("name"));
+        if(locationName != null) {
+            locationName.setText(response.getJSONObject("city").getString("country") +
+                    ", " + response.getJSONObject("city").getString("name"));
+        }
 
         setWeatherIcons(response);
     }

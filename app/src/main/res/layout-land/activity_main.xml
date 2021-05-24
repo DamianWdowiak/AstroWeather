@@ -71,30 +71,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-    <LinearLayout
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="135dp"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/TextView3">
-
-        <fragment
-            android:id="@+id/sunFragment"
-            android:name="com.example.astroweather.SunFragment"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-        </fragment>
-
-        <fragment
-            android:id="@+id/moonFragment"
-            android:name="com.example.astroweather.MoonFragment"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-        </fragment>
-    </LinearLayout>
+        android:layout_marginTop="140dp"
+        app:layout_constraintTop_toBottomOf="@+id/latitude"
+        tools:layout_editor_absoluteX="-50dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

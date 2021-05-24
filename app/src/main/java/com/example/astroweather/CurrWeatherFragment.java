@@ -2,6 +2,7 @@ package com.example.astroweather;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -100,15 +101,17 @@ public class CurrWeatherFragment extends Fragment {
         JSONObject savedData = loadJSONFromStorage();
         String units = savedData.getBoolean("is_imperial") ? IMPERIAL : METRIC;
         updateFragmentFields(savedData, units);
-        updateViewModel(savedData);
+        updateViewModel(savedData, true);
     }
 
-    private void updateViewModel(JSONObject savedData) throws JSONException {
+    private void updateViewModel(JSONObject savedData, boolean fromStorage) throws JSONException {
         viewModel.setCityName(savedData.getString("name"));
         viewModel.setLatitude(savedData.getJSONObject("coord").getDouble("lat"));
         viewModel.setLongitude(savedData.getJSONObject("coord").getDouble("lon"));
-        viewModel.setIsImperial(savedData.getBoolean("is_imperial"));
-        viewModel.setRefreshRate(savedData.getLong("refresh_rate"));
+        if(fromStorage) {
+            viewModel.setIsImperial(savedData.getBoolean("is_imperial"));
+            viewModel.setRefreshRate(savedData.getLong("refresh_rate"));
+        }
     }
 
     private JSONObject loadJSONFromStorage() throws Exception {
@@ -170,6 +173,7 @@ public class CurrWeatherFragment extends Fragment {
                     try {
                         updateFragmentFields(response, units);
                         saveJSONToStorage(response);
+                        updateViewModel(response, false);
                     } catch (JSONException e) {
                         Toast.makeText(getActivity(), "Response Error!", Toast.LENGTH_SHORT).show();
                     }
@@ -195,16 +199,21 @@ public class CurrWeatherFragment extends Fragment {
         pressure.setText(response.getJSONObject("main").getInt("pressure") + " hPa");
         visibility.setText(response.getInt("visibility") / 1_000.0 + " km");
         windSpeed.setText(response.getJSONObject("wind").getDouble("speed") + " km/h");
-        locationName.setText(response.getJSONObject("sys").getString("country") + ", " + response.getString("name"));
 
-        String iconCode = response.getJSONArray("weather").getJSONObject(0).getString("icon");
+        if(locationName != null) {
+            locationName.setText(response.getJSONObject("sys").getString("country") + ", " + response.getString("name"));
+        }
 
-        String imgUrl = "https://openweathermap.org/img/wn/" + iconCode + "@4x.png";
-        ImageRequest imageRequest = new ImageRequest(imgUrl, imageResponse -> icon.setImageBitmap(imageResponse),
-                0, 0, ImageView.ScaleType.CENTER_CROP, null,
-                error -> Toast.makeText(getActivity(), "Couldn't obtain icon from server!", Toast.LENGTH_SHORT).show());
+        if(icon != null) {
+            String iconCode = response.getJSONArray("weather").getJSONObject(0).getString("icon");
 
-        queue.add(imageRequest);
+            String imgUrl = "https://openweathermap.org/img/wn/" + iconCode + "@4x.png";
+            ImageRequest imageRequest = new ImageRequest(imgUrl, imageResponse -> icon.setImageBitmap(imageResponse),
+                    0, 0, ImageView.ScaleType.CENTER_CROP, null,
+                    error -> Toast.makeText(getActivity(), "Couldn't obtain icon from server!", Toast.LENGTH_SHORT).show());
+
+            queue.add(imageRequest);
+        }
     }
 
     private void bindViews(View rootView) {
