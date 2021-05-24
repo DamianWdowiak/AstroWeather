@@ -101,16 +101,22 @@ public class CurrWeatherFragment extends Fragment {
         JSONObject savedData = loadJSONFromStorage();
         String units = savedData.getBoolean("is_imperial") ? IMPERIAL : METRIC;
         updateFragmentFields(savedData, units);
-        updateViewModel(savedData, true);
+        updateViewModel(savedData, null);
     }
 
-    private void updateViewModel(JSONObject savedData, boolean fromStorage) throws JSONException {
-        viewModel.setCityName(savedData.getString("name"));
+    private void updateViewModel(JSONObject savedData, String units) throws JSONException {
         viewModel.setLatitude(savedData.getJSONObject("coord").getDouble("lat"));
         viewModel.setLongitude(savedData.getJSONObject("coord").getDouble("lon"));
-        if(fromStorage) {
+        if(units == null) {
+            viewModel.setCityName(savedData.getString("name"));
             viewModel.setIsImperial(savedData.getBoolean("is_imperial"));
             viewModel.setRefreshRate(savedData.getLong("refresh_rate"));
+        }
+        else {
+            viewModel.setIsImperial(units.equals(IMPERIAL));
+            if(viewModel.getCityName().getValue() == null){
+                viewModel.setCityName(savedData.getString("name"));
+            }
         }
     }
 
@@ -173,7 +179,7 @@ public class CurrWeatherFragment extends Fragment {
                     try {
                         updateFragmentFields(response, units);
                         saveJSONToStorage(response);
-                        updateViewModel(response, false);
+                        updateViewModel(response, units);
                     } catch (JSONException e) {
                         Toast.makeText(getActivity(), "Response Error!", Toast.LENGTH_SHORT).show();
                     }
