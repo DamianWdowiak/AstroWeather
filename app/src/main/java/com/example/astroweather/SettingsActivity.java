@@ -30,11 +30,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -81,14 +78,13 @@ public class SettingsActivity extends AppCompatActivity {
 
         queue = Volley.newRequestQueue(this);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             try {
                 loadListFromStorage();
             } catch (Exception e) {
                 cities = new ArrayList<>();
             }
-        }
-        else {
+        } else {
             cities = savedInstanceState.getStringArrayList("cities");
         }
 
@@ -109,6 +105,11 @@ public class SettingsActivity extends AppCompatActivity {
             int spinnerPosition = adapter.getPosition(millisToSeconds(spinnerIntent));
             refreshRate.setSelection(spinnerPosition);
             units.setChecked(unitsIntent);
+        }
+
+        int index;
+        if ((index = cities.indexOf(cityNameIntent)) != -1) {
+            favourites.setSelection(index);
         }
 
         save.setOnClickListener(v -> {
@@ -234,26 +235,27 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void saveListToStorage() {
-        String favouritesString = cities.toString();
         try (FileOutputStream outputStream = this.openFileOutput(FAVOURITES_FILENAME, Context.MODE_PRIVATE)) {
-            outputStream.write(favouritesString.substring(1, favouritesString.length() - 1).replaceAll(" ", "").getBytes());
+            for (String city : cities) {
+                outputStream.write((city + "\n").getBytes());
+            }
         } catch (Exception ignored) {
         }
+
     }
 
     private void loadListFromStorage() throws Exception {
+        cities = new ArrayList<>();
         FileInputStream fis = this.openFileInput(FAVOURITES_FILENAME);
         InputStreamReader inputStreamReader =
                 new InputStreamReader(fis, StandardCharsets.UTF_8);
-        StringBuilder stringBuilder = new StringBuilder();
+
         BufferedReader reader = new BufferedReader(inputStreamReader);
         String line = reader.readLine();
         while (line != null) {
-            stringBuilder.append(line);
+            cities.add(line);
             line = reader.readLine();
         }
-
-        cities = new ArrayList<>(Arrays.asList(stringBuilder.toString().split(",")));
     }
 
     private boolean validate(double latitude, double longitude) {
