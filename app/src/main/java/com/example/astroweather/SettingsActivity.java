@@ -241,7 +241,6 @@ public class SettingsActivity extends AppCompatActivity {
             }
         } catch (Exception ignored) {
         }
-
     }
 
     private void loadListFromStorage() throws Exception {
@@ -287,7 +286,8 @@ public class SettingsActivity extends AppCompatActivity {
                         add.setEnabled(true);
                         delete.setEnabled(true);
                         blocked.set(false);
-                    } catch (JSONException ignored) {
+                    } catch (JSONException e) {
+                        blocked.set(false);
                     }
                 },
                 error -> {
@@ -304,17 +304,17 @@ public class SettingsActivity extends AppCompatActivity {
         String apiKey = BuildConfig.OPEN_WEATHER_MAP_KEY;
         String url = baseURL + "lat=" + lat + "&lon=" + lon + "&appid=" + apiKey;
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+        @SuppressLint("SetTextI18n") JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
                         blocked.set(true);
-                        cityName.setText(response.getString("name"));
-                        blocked.set(false);
+                        cityName.setText(response.getString("name") + "," + response.getJSONObject("sys").getString("country"));
                         save.setEnabled(true);
                         add.setEnabled(true);
                         delete.setEnabled(true);
                         blocked.set(false);
-                    } catch (JSONException ignored) {
+                    } catch (JSONException e) {
+                        blocked.set(false);
                     }
                 },
                 error -> {
